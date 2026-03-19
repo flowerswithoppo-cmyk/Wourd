@@ -26,9 +26,6 @@ jobs:
       - name: Accept SDK licenses
         run: yes | sdkmanager --licenses
 
-      - name: Cache Gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
