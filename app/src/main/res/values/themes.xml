@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Simple base theme for Compose host Activity -->
-    <style name="Theme.Wourd" parent="Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Wourd" parent="@android:style/Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.Wourd.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@android:color/white</item>
