@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,8 +80,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.halilibo.richtext.markdown.Markdown
-import com.halilibo.richtext.ui.material3.RichText
 import com.wourd.app.domain.model.Attachment
 import com.wourd.app.domain.model.Message
 import com.wourd.app.ui.util.CaptureBus
@@ -206,7 +205,11 @@ fun HomeScreen(
                 Button(
                     onClick = {
                         showAttachSheet = false
-                        pickPhotoLauncher.launch(ActivityResultContracts.PickVisualMedia.Request(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        pickPhotoLauncher.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly,
+                            ),
+                        )
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text("Choose photo from gallery") }
@@ -401,6 +404,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MessageBubble(
     message: Message,
@@ -440,13 +444,8 @@ private fun MessageBubble(
                     }
                     Text(message.content, color = fg)
                 } else {
-                    if (message.content.isNotBlank()) {
-                        RichText(color = fg) {
-                            Markdown(message.content)
-                        }
-                    } else {
-                        Text("...", color = fg.copy(alpha = 0.6f))
-                    }
+                    val text = message.content.ifBlank { "..." }
+                    Text(text, color = fg)
                 }
 
                 androidx.compose.material3.DropdownMenu(

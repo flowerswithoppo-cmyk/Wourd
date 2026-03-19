@@ -156,32 +156,28 @@ private fun ModelPicker(
         Text("Model", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f))
         var expanded by remember { mutableStateOf(false) }
 
-        androidx.compose.material3.ExposedDropdownMenuBox(
+        OutlinedTextField(
+            value = value,
+            onValueChange = onChange,
+            label = { Text("Model name") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            singleLine = true,
+            readOnly = false,
+        )
+        androidx.compose.material3.DropdownMenu(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
+            onDismissRequest = { expanded = false },
         ) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onChange,
-                label = { Text("Model name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                singleLine = true,
-            )
-            androidx.compose.material3.ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-            ) {
-                models.forEach { m ->
-                    androidx.compose.material3.DropdownMenuItem(
-                        text = { Text(m) },
-                        onClick = {
-                            onChange(m)
-                            expanded = false
-                        },
-                    )
-                }
+            models.forEach { m ->
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(m) },
+                    onClick = {
+                        onChange(m)
+                        expanded = false
+                    },
+                )
             }
         }
     }
