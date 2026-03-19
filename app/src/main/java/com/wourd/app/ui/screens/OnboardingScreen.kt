@@ -161,8 +161,7 @@ private fun ModelPicker(
             onValueChange = onChange,
             label = { Text("Model name") },
             modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(),
+                .fillMaxWidth(),
             singleLine = true,
             readOnly = false,
         )
