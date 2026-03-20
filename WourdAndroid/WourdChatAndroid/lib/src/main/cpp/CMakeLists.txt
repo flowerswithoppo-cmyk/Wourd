@@ -30,9 +30,9 @@ if(DEFINED ANDROID_ABI)
     endif()
 endif()
 
-// This project is based on `llama.cpp/examples/llama.android`.
-// In our repo layout the example is copied to `WourdAndroid/WourdChatAndroid`,
-// while the original `llama.cpp` sources are placed at `WourdAndroid/llama.cpp`.
+# This project is based on `llama.cpp/examples/llama.android`.
+# In our repo layout the example is copied to `WourdAndroid/WourdChatAndroid`,
+# while the original `llama.cpp` sources are placed at `WourdAndroid/llama.cpp`.
 set(LLAMA_SRC ${CMAKE_CURRENT_LIST_DIR}/../../../../../llama.cpp)
 add_subdirectory(${LLAMA_SRC} build-llama)
 
