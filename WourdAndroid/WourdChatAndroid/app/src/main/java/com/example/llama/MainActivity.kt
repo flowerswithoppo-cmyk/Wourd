@@ -133,28 +133,43 @@ class MainActivity : AppCompatActivity() {
         // Arm AI Chat initialization
         // Load default model automatically (offline generation).
         lifecycleScope.launch(Dispatchers.Default) {
-            engine = AiChat.getInferenceEngine(applicationContext)
-            val preset = modelPresets.getOrElse(0) { modelPresets.first() }
-            withContext(Dispatchers.Main) {
-                userInputEt.isEnabled = false
-                userInputEt.hint = "Скачиваю модель..."
-                isModelReady = false
-                isDownloadingModel = true
-                modelSpinner.isEnabled = false
-                thinkingModeCb.isEnabled = false
-                internetSearchCb.isEnabled = false
-                userActionFab.isEnabled = false
-            }
-            downloadAndLoadModel(preset)
-            withContext(Dispatchers.Main) {
-                isDownloadingModel = false
-                isModelReady = true
-                modelSpinner.isEnabled = true
-                userInputEt.isEnabled = true
-                userInputEt.hint = "Введите сообщение и нажмите отправить"
-                thinkingModeCb.isEnabled = true
-                internetSearchCb.isEnabled = true
-                userActionFab.isEnabled = true
+            try {
+                engine = AiChat.getInferenceEngine(applicationContext)
+                val preset = modelPresets.getOrElse(0) { modelPresets.first() }
+                withContext(Dispatchers.Main) {
+                    userInputEt.isEnabled = false
+                    userInputEt.hint = "Скачиваю модель..."
+                    isModelReady = false
+                    isDownloadingModel = true
+                    modelSpinner.isEnabled = false
+                    thinkingModeCb.isEnabled = false
+                    internetSearchCb.isEnabled = false
+                    userActionFab.isEnabled = false
+                }
+                downloadAndLoadModel(preset)
+                withContext(Dispatchers.Main) {
+                    isDownloadingModel = false
+                    isModelReady = true
+                    modelSpinner.isEnabled = true
+                    userInputEt.isEnabled = true
+                    userInputEt.hint = "Введите сообщение и нажмите отправить"
+                    thinkingModeCb.isEnabled = true
+                    internetSearchCb.isEnabled = true
+                    userActionFab.isEnabled = true
+                }
+            } catch (t: Throwable) {
+                Log.e(TAG, "Failed to init/download default model", t)
+                withContext(Dispatchers.Main) {
+                    isDownloadingModel = false
+                    isModelReady = false
+                    modelSpinner.isEnabled = true
+                    userInputEt.isEnabled = false
+                    userInputEt.hint = "Ошибка инициализации (см. Logcat)"
+                    thinkingModeCb.isEnabled = false
+                    internetSearchCb.isEnabled = false
+                    userActionFab.isEnabled = false
+                    ggufTv.text = "Ошибка: не удалось инициализировать модель: ${t.message}"
+                }
             }
         }
 
@@ -581,7 +596,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        engine.destroy()
+        // `engine` may fail to initialize; avoid crash on Activity teardown.
+        if (::engine.isInitialized) engine.destroy()
         super.onDestroy()
     }
 
