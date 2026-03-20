@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
     private suspend fun downloadFileWithProgress(
         url: String,
         destFile: File,
-        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit
+        onProgress: suspend (downloadedBytes: Long, totalBytes: Long) -> Unit
     ) {
         withContext(Dispatchers.IO) {
             destFile.parentFile?.mkdirs()
