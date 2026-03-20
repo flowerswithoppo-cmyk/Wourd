@@ -1,14 +1,14 @@
-name: Build Debug APK
+name: Build Android APK
 
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
-  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -19,22 +19,32 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
 
-      - name: Set up Android SDK
+      - name: Set up Android SDK (cmdline-tools + platform-tools)
         uses: android-actions/setup-android@v3
 
-      - name: Accept SDK licenses
-        run: yes | sdkmanager --licenses
+      - name: Install required SDK/NDK/CMake
+        shell: bash
+        run: |
+          set -e
+          sdkmanager --list | head -n 50
+          sdkmanager "platforms;android-36" "build-tools;34.0.0" "platform-tools" "cmake;3.31.6" "ndk;29.0.13113456"
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Build APK (arm64)
+        shell: bash
+        run: |
+          set -e
+          if [ ! -d "WourdAndroid/llama.cpp" ]; then
+            git clone --depth 1 https://github.com/ggerganov/llama.cpp "WourdAndroid/llama.cpp"
+          fi
+          cd "WourdAndroid/WourdChatAndroid"
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
-
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Wourd-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: WourdChatAndroid-apk
+          path: "WourdAndroid/WourdChatAndroid/app/build/outputs/apk/debug/app-debug.apk"
+          if-no-files-found: warn
 

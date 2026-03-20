@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="models">
+        <item>Qwen2.5-1.5B (Q4_K_M)</item>
+        <item>TinyLlama-1.1B (Q4_K_M)</item>
+    </string-array>
+</resources>
+
