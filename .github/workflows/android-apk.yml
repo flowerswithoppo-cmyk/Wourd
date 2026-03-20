@@ -39,7 +39,7 @@ jobs:
             git clone --depth 1 https://github.com/ggerganov/llama.cpp "WourdAndroid/llama.cpp"
           fi
           cd "WourdAndroid/WourdChatAndroid"
-          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+          bash ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
