@@ -107,22 +107,37 @@ class MainActivity : AppCompatActivity() {
 
                 // Trigger model swap.
                 lifecycleScope.launch(Dispatchers.Default) {
-                    withContext(Dispatchers.Main) {
-                        isModelReady = false
-                        isDownloadingModel = true
-                        userInputEt.isEnabled = false
-                        userActionFab.isEnabled = false
-                        thinkingModeCb.isEnabled = false
-                        internetSearchCb.isEnabled = false
-                    }
-                    downloadAndLoadModel(modelPresets[position])
-                    withContext(Dispatchers.Main) {
-                        isDownloadingModel = false
-                        isModelReady = true
-                        userInputEt.isEnabled = true
-                        thinkingModeCb.isEnabled = true
-                        internetSearchCb.isEnabled = true
-                        userActionFab.isEnabled = true
+                    try {
+                        withContext(Dispatchers.Main) {
+                            isModelReady = false
+                            isDownloadingModel = true
+                            userInputEt.isEnabled = false
+                            userActionFab.isEnabled = false
+                            thinkingModeCb.isEnabled = false
+                            internetSearchCb.isEnabled = false
+                        }
+
+                        downloadAndLoadModel(modelPresets[position])
+
+                        withContext(Dispatchers.Main) {
+                            isDownloadingModel = false
+                            isModelReady = true
+                            userInputEt.isEnabled = true
+                            thinkingModeCb.isEnabled = true
+                            internetSearchCb.isEnabled = true
+                            userActionFab.isEnabled = true
+                        }
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "Failed to swap model", t)
+                        withContext(Dispatchers.Main) {
+                            isDownloadingModel = false
+                            isModelReady = false
+                            userInputEt.isEnabled = false
+                            thinkingModeCb.isEnabled = false
+                            internetSearchCb.isEnabled = false
+                            userActionFab.isEnabled = false
+                            ggufTv.text = "Ошибка загрузки модели: ${t.message ?: "unknown error"}"
+                        }
                     }
                 }
             }
@@ -225,6 +240,18 @@ class MainActivity : AppCompatActivity() {
 
         withContext(Dispatchers.Main) {
             ggufTv.text = "Загружаю модель: ${preset.displayName}"
+        }
+
+        // If a previous load failed, the engine is likely in State.Error.
+        // The library only allows `loadModel()` when the state is Initialized,
+        // so we reset to avoid "Cannot load model in Error!" crashes.
+        if (engine.state.value is InferenceEngine.State.Error) {
+            Log.w(TAG, "Inference engine is in Error state; resetting via cleanUp()")
+            engine.cleanUp()
+        }
+
+        if (!modelFile.exists() || modelFile.length() == 0L) {
+            throw IllegalStateException("Model file is missing or empty: ${modelFile.absolutePath}")
         }
 
         engine.loadModel(modelFile.path)
